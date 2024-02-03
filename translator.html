@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Translator</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+        integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.min.js"
+        integrity="sha384-7VPbUDkoPSGFnVtYi0QogXtr74QeVeeIs99Qfg5YCF+TidwNdjvaKZX19NZ/e6oz"
+        crossorigin="anonymous"></script>
+        
+</head>
+
+<body>
+    <body>
+        <div id="root">
+            <div class="container">
+                <h1 class="text-center mt-2 mb-4">Translate your text from English to Hindi</h1>
+                <div class="row">
+                    <div class="col-lg-6 col-md-12">
+                        <h4 class="mx-4">Enter text</h4>
+                        <textarea id="inputText" cols="25" rows="5" class="form-control m-3"
+                            placeholder="Enter text in English ..." v-model="inputText"></textarea>
+                    </div>
+                    <div class="col-lg-6 col-md-12">
+                        <h4 class="mx-4">Translated text</h4>
+                        <div>
+                            <textarea class="form-control m-3" cols="25" rows="5"
+                                placeholder="Translated text will be displayed here ...">{{result}}</textarea>
+                        </div>
+                    </div>
+                   
+                    <div class="col-12 text-center">
+                        <div class="btn-group">
+                          
+                            <button class="btn btn-success btn-lg m-3" @click="translate">Translate</button>
+                           
+                            <button class="btn btn-info btn-lg m-3" @click="clear">Clear</button>
+                            
+                            <button class="btn btn-secondary btn-lg m-3" @click="speak">Speak</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</body>
+<script>
+    new Vue({
+        el: "#root",
+
+        data: {
+            inputText: "",
+            result: "",
+            show: false,
+        },
+        watch: {
+            inputText: function (val) {
+                this.inputText = val;
+            }
+        },
+        methods: {
+            
+            validate: function () {
+                if (this.inputText == "") {
+                    alert("Please enter some text to translate");
+                    return false;
+                }
+                return true;
+            },
+
+            
+            translate() {
+                if (!this.validate()) {
+                    return;
+                }
+                const url = 'https://microsoft-translator-text.p.rapidapi.com/translate?to%5B0%5D=hi&api-version=3.0&profanityAction=NoAction&textType=plain';
+
+                const options = {
+                    method: 'POST',
+                    headers: {
+                        'content-type': 'application/json',
+                        'X-RapidAPI-Key': 'b71f3df8dcmsh8ec188412370131p121c43jsn95bfb83a5bfb',
+                        'X-RapidAPI-Host': 'microsoft-translator-text.p.rapidapi.com'
+                    },
+                   
+                    body: JSON.stringify([{
+                        "Text": this.inputText
+                    }])
+                };
+
+                this.show = true;
+                fetch(url, options)
+                    .then(res => res.json())
+                    .then(
+                        
+                        json => {
+                            this.result = json[0].translations[0].text;
+                        },
+                    )
+                    .catch(err => console.error('error:' + err));
+
+                
+                setTimeout(() => {
+                    this.show = false;
+                }, 1500);
+
+            },
+
+            
+            speak() {
+                const utterance = new SpeechSynthesisUtterance(this.inputText);
+                speechSynthesis.speak(utterance);
+            },
+
+            
+            clear() {
+                this.inputText = "";
+                this.result = "";
+            }
+        },
+    })
+
+</script>
+
+</html>
